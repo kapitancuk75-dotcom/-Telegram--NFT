@@ -68,4 +68,4 @@ async def main():
     await scan()
 
 with client:
-    client.loop.run_until_complete(main())main())
+    client.loop.run_until_complete(main())
