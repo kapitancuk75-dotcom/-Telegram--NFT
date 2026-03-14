@@ -1,6 +1,6 @@
 MARKETS = [
-    "Getgems_Nft_Bot",
-    "portals_market_bot",
-    "tonnel_network_bot",
+ "PortalsMarketBot",       # точный username
+ "TonnelRelayerBot",       # точный username
+ "GetgemsNFTBot",          # точный username
     # можно добавить другие боты, например Getgems
 ]
