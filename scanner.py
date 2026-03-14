@@ -5,11 +5,10 @@ from parser import parse_nft
 from config import API_ID, API_HASH, BOT_TOKEN, CHAT_ID, MAX_PRICE
 from markets import MARKETS
 
-# Telethon client
+# Telethon client (использует session.session)
 client = TelegramClient("session", API_ID, API_HASH)
 
-# чтобы не отправлять одно и то же дважды
-seen = set()
+seen = set()  # чтобы не дублировать сообщения
 
 # функция отправки уведомлений через Telegram-бота
 def send_bot_message(text):
@@ -34,17 +33,13 @@ async def scan():
                 async for msg in client.iter_messages(market, limit=30):
                     if not msg.text:
                         continue
-
                     if msg.id in seen:
                         continue
-
                     seen.add(msg.id)
 
                     name, price, url = parse_nft(msg.text)
-
                     if not name or not price:
                         continue
-
                     if price > MAX_PRICE:
                         continue
 
@@ -54,7 +49,6 @@ async def scan():
                         f"Цена: {price} TON\n"
                         f"🔗 Ссылка: {url if url else 'нет ссылки'}"
                     )
-
                     send_bot_message(message)
 
             except Exception as e:
@@ -65,6 +59,7 @@ async def scan():
 # точка входа
 async def main():
     print("NFT scanner started")
+    send_bot_message("🚀 NFT сканер запущен и работает!")
     await scan()
 
 with client:
