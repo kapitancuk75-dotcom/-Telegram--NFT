@@ -1,44 +1,37 @@
 import asyncio
 import requests
-
 from telethon import TelegramClient
-
+from parser import parse_nft
 from config import API_ID, API_HASH, BOT_TOKEN, CHAT_ID, MAX_PRICE
 from markets import MARKETS
-from parser import parse_nft
 
-
+# Telethon client
 client = TelegramClient("session", API_ID, API_HASH)
 
+# чтобы не отправлять одно и то же дважды
 seen = set()
 
-
+# функция отправки уведомлений через Telegram-бота
 def send_bot_message(text):
-
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
     data = {
         "chat_id": CHAT_ID,
         "text": text,
         "disable_web_page_preview": False
     }
-
     try:
-        requests.post(url, data=data)
+        response = requests.post(url, data=data)
+        if not response.ok:
+            print("Ошибка отправки:", response.text)
     except Exception as e:
         print("Ошибка отправки:", e)
 
-
+# основной цикл сканера
 async def scan():
-
     while True:
-
         for market in MARKETS:
-
             try:
-
                 async for msg in client.iter_messages(market, limit=30):
-
                     if not msg.text:
                         continue
 
@@ -58,25 +51,21 @@ async def scan():
                     message = (
                         f"🎁 Найден NFT подарок\n\n"
                         f"Название: {name}\n"
-                        f"Цена: {price} TON\n\n"
-                        f"🔗 Открыть:\n{url if url else 'нет ссылки'}"
+                        f"Цена: {price} TON\n"
+                        f"🔗 Ссылка: {url if url else 'нет ссылки'}"
                     )
 
                     send_bot_message(message)
 
             except Exception as e:
-
-                print("Ошибка сканирования", market, e)
+                print(f"Ошибка сканирования {market}: {e}")
 
         await asyncio.sleep(20)
 
-
+# точка входа
 async def main():
-
     print("NFT scanner started")
-
     await scan()
 
-
 with client:
-    client.loop.run_until_complete(main())
+    client.loop.run_until_complete(main())main())
